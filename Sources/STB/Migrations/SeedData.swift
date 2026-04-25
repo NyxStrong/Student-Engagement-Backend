@@ -164,11 +164,11 @@ struct SeedData: AsyncMigration {
         try await galleryNight.save(on: database)       // id: 7
 
         // Mark past events as completed
-        hackathon.status = EventStatus.completed.rawValue
-        aiWorkshop.status = EventStatus.completed.rawValue
-        campusCleanup.status = EventStatus.completed.rawValue
-        sustainabilityPanel.status = EventStatus.completed.rawValue
-        debateTournament.status = EventStatus.completed.rawValue
+        hackathon.status = EventStatus.published.rawValue
+        aiWorkshop.status = EventStatus.published.rawValue
+        campusCleanup.status = EventStatus.published.rawValue
+        sustainabilityPanel.status = EventStatus.published.rawValue
+        debateTournament.status = EventStatus.published.rawValue
         try await hackathon.update(on: database)
         try await aiWorkshop.update(on: database)
         try await campusCleanup.update(on: database)
