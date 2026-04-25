@@ -118,6 +118,9 @@ struct EventsController: RouteCollection {
                 case "approve":
                     if (admin.type == UserType(rawValue: "admin")) {
                         event.status = 2
+                        if event.facilities == 1 { event.facilities = 2 }
+                        if event.it == 1 { event.it = 2 }
+                        if event.finance == 1 { event.finance = 2 }
                         return .ok
                     } else {
                         throw Abort(.badRequest)
