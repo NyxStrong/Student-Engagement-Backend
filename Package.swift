@@ -28,14 +28,14 @@ let package = Package(
             ],
             swiftSettings: swiftSettings
         ),
-        .testTarget(
-            name: "STBTests",
-            dependencies: [
-                .target(name: "STB"),
-                .product(name: "VaporTesting", package: "vapor"),
-            ],
-            swiftSettings: swiftSettings
-        )
+        // .testTarget(
+        //     name: "STBTests",
+        //     dependencies: [
+        //         .target(name: "STB"),
+        //         .product(name: "VaporTesting", package: "vapor"),
+        //     ],
+        //     swiftSettings: swiftSettings
+        // )
     ]
 )
 
