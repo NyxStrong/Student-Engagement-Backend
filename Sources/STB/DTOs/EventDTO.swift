@@ -14,7 +14,7 @@ struct EventDTO: Content {
     var it: Int
     var finance: Int
     var status: Int
-    var users: [UserDTO]
+    var users: [UserEventDTO]
 
     init(event: Event, db: any Database) async {
         self.id = event.id
@@ -34,7 +34,13 @@ struct EventDTO: Content {
             }
             self.users = []
             for userId in userIds {
-                self.users.append(UserDTO(user: try await User.find(userId, on: db)!))
+                try await self.users.append(
+                    UserEventDTO(
+                        user: try await User.find(userId, on: db)!, 
+                        checkedin: Signup.query(on: db).filter(\.$event.$id == event.id!).filter(\.$user.$id == userId).first()!.attendance == true
+                    )
+                )
+
             }
         } catch {
             self.users = []
