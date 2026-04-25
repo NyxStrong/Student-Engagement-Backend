@@ -31,6 +31,7 @@ struct FeedbackControler: RouteCollection {
         do {
             feedbacks = try await Signup.query(on: req.db)
                 .filter(\.$event.$id == eventId!)
+                .filter(\.$rating != nil)
                 .all().map { FeedbackDTO(signup: $0) }
         } catch {
 
