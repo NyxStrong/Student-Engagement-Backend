@@ -26,7 +26,15 @@ struct FeedbackControler: RouteCollection {
 
     func getFeedback(req: Request) async throws -> [FeedbackDTO] {
         let eventId: Int? = req.parameters.get("id", as: Int.self)
+        var feedbacks: [FeedbackDTO] = []
 
-        return try await Signup.query(on: req.db).filter(\.$event.$id == eventId!).all().map { FeedbackDTO(signup: $0) }
+        do {
+            feedbacks = try await Signup.query(on: req.db)
+                .filter(\.$event.$id == eventId!)
+                .all().map { FeedbackDTO(signup: $0) }
+        } catch {
+
+        }
+        return feedbacks
     }
 }
