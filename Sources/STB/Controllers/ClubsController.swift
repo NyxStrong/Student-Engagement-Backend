@@ -6,7 +6,7 @@ struct ClubsControler: RouteCollection {
         let clubs = routes.grouped("clubs")
         clubs.get(use: getClubs)
         clubs.get(":id", use: getClub)
-        clubs.get(":id", "admin", use: getAdmins)
+        // clubs.get(":id", "admin", use: getAdmins)
     }
 
     func getClubs(req: Request) async throws -> [ClubDTO] {
@@ -26,14 +26,14 @@ struct ClubsControler: RouteCollection {
         }
     }
 
-    func getAdmins(req: Request) async throws -> [UserDTO] {
-        let clubId: Int? = req.parameters.get("id", as: Int.self)
-        var admins: [UserDTO] = []
-        for admin in try await Membership.query(on: req.db).filter(\.$club.$id == clubId!).filter(\.$admin == true).all() {
-            try await admins.append(UserDTO(user: User.find(admin.user.id, on: req.db)!))
-        }
-        return admins
-    }
+    // func getAdmins(req: Request) async throws -> [UserDTO] {
+    //     let clubId: Int? = req.parameters.get("id", as: Int.self)
+    //     var admins: [UserDTO] = []
+    //     for admin in try await Membership.query(on: req.db).filter(\.$club.$id == clubId!).filter(\.$admin == true).all() {
+    //         try await admins.append(UserDTO(user: User.find(admin.user.id, on: req.db)!))
+    //     }
+    //     return admins
+    // }
 
     func joinClub(req: Request) async throws -> HTTPStatus {
         let clubId: Int? = req.parameters.get("id", as: Int.self)

@@ -6,7 +6,7 @@ struct ClubDTO: Content {
     var id: Int?
     var name: String
     var status: Int
-    var users: [UserDTO]
+    var users: [UserClubDTO]
     var events: [EventDTO]
 
     init(club: Club, db: any Database) async {
@@ -23,7 +23,7 @@ struct ClubDTO: Content {
         self.users = []
         do {
             for membership in try await Membership.query(on: db).filter(\.$club.$id == club.id!).all() {
-                self.users.append(UserDTO(user: try await User.find(membership.user.id, on: db)!))
+                self.users.append(UserClubDTO(user: try await User.find(membership.user.id, on: db)!, membership: membership))
             }
         } catch {}
     }
