@@ -60,9 +60,16 @@ struct EventsController: RouteCollection {
         let eventId = req.parameters.get("id", as: Int.self)
         let userId = try req.content.decode(RsvpReqDTO.self).userId
         
-        let signup = Signup(userId: userId!, eventId: eventId!, rsvp: true)
-
-        try await signup.save(on: req.db)
+        do {
+            let signup = try await Signup.query(on: req.db)
+                .filter(\.$user.$id == userId!)
+                .filter(\.$event.$id == eventId!)
+                .first()!
+            try await signup.delete(on: req.db)
+        } catch {
+            let signup = Signup(userId: userId!, eventId: eventId!, rsvp: true)
+            try await signup.save(on: req.db)
+        }
 
         return .ok
     }
@@ -109,8 +116,8 @@ struct EventsController: RouteCollection {
         {
             switch state {
                 case "submit", "publish", "complete":
-                    if (membership.admin) && (event.status < 5) {
-                        event.status = event.status+1
+                    if (membership.admin) && (event.status < 5) && (event.status != 1) {
+                        event.status += 1
                         return .ok 
                     } else {
                         throw Abort(.badRequest)

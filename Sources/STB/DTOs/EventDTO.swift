@@ -23,7 +23,7 @@ struct EventDTO: Content {
         self.location = event.location
         self.dateTime = event.dateTime.formatted(EventDateStyle)
         self.tag = event.tag
-        self.clubId = event.$club.id
+        self.clubId = event.club.id!
         self.facilities = event.facilities
         self.it = event.it
         self.finance = event.finance
@@ -37,7 +37,10 @@ struct EventDTO: Content {
                 try await self.users.append(
                     UserEventDTO(
                         user: try await User.find(userId, on: db)!, 
-                        checkedin: Signup.query(on: db).filter(\.$event.$id == event.id!).filter(\.$user.$id == userId).first()!.attendance == true
+                        checkedin: Signup.query(on: db)
+                            .filter(\.$event.$id == event.id!)
+                            .filter(\.$user.$id == userId)
+                            .first()!.attendance == true
                     )
                 )
 

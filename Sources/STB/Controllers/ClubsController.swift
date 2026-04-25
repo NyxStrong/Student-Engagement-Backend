@@ -39,9 +39,18 @@ struct ClubsControler: RouteCollection {
         let clubId: Int? = req.parameters.get("id", as: Int.self)
         let content = try req.content.decode(JoinClubReqDTO.self)
         do {
-            let membership = Membership(userId: content.userId!, clubId: clubId!)
-            try await membership.save(on: req.db)
-            return .ok
+            do {
+                let membership = try await Membership.query(on: req.db)
+                .filter(\.$club.$id == clubId!)
+                .filter(\.$user.$id == content.userId!)
+                .first()!
+                try await membership.delete(on: req.db)
+                return .ok
+            } catch {
+                let membership = Membership(userId: content.userId!, clubId: clubId!)
+                try await membership.save(on: req.db)
+                return .ok
+            }
         } catch {
             throw Abort(.badRequest)
         }
