@@ -10,10 +10,12 @@ struct FeedbackControler: RouteCollection {
     func create(req: Request) async throws -> HTTPStatus {
         do {
             let content = try req.content.decode(CreateFeedbackReqDTO.self)
-            let signup = try await Signup.query(on: req.db)
+            guard let signup = try await Signup.query(on: req.db)
                 .filter(\.$user.$id == content.userId)
                 .filter(\.$event.$id == content.eventId)
-                .first()!
+                .first() else {
+                    throw Abort(.badRequest)
+                }
             signup.rating = content.rating
             signup.comment = content.comment
             try await signup.save(on: req.db)

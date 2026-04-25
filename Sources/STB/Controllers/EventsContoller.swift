@@ -122,6 +122,7 @@ struct EventsController: RouteCollection {
                         throw Abort(.badRequest)
                     }
                 case "approve":
+                    print("test")
                     if (admin.type == UserType(rawValue: "admin")) {
                         event.status = 2
                         if event.facilities == 1 { event.facilities = 2 }
