@@ -79,7 +79,7 @@ struct EventsController: RouteCollection {
         let checkin = try req.content.decode(CheckinReqDTO.self)
         let userId = checkin.userId
         let adminId = checkin.adminId
-        
+
         if
         let event = try await Event.find(eventId, on: req.db),
         let membership = try await Membership.query(on: req.db)
@@ -100,20 +100,21 @@ struct EventsController: RouteCollection {
     }
 
     func eventManage(req: Request) async throws -> HTTPStatus {
-        let state = req.url.path.split(separator: "/").last
+        let state = req.url.path.components(separatedBy: "/").last
         let adminId: Int = try req.content.decode(EventMagageReqDTO.self).adminId
         let eventId: Int? = req.parameters.get("id", as: Int.self)
 
         if 
         let admin = try await User.find(adminId, on: req.db),
-        let event = try await Event.find(eventId, on: req.db),
-        let membership = try await Membership.query(on: req.db)
-            .filter(\.$user.$id == admin.id!)
-            .filter(\.$club.$id == event.$club.id).first()
+        let event = try await Event.find(eventId, on: req.db)
         {
-            switch state {
+            switch state! {
                 case "submit", "publish", "complete":
-                    if (membership.admin) && (event.status < 5) && (event.status != 1) {
+                    if
+                    let membership = try await Membership.query(on: req.db)
+                        .filter(\.$user.$id == admin.id!)
+                        .filter(\.$club.$id == event.$club.id).first(),
+                    (membership.admin) && (event.status < 5) && (event.status != 1) {
                         event.status += 1
                         try await event.save(on: req.db)
                         return .ok 
