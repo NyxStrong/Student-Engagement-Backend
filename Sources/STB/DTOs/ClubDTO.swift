@@ -15,7 +15,7 @@ struct ClubDTO: Content {
         self.status = club.status
         self.events = []
         do {
-            for event in try await Event.query(on: db).filter(\.$club.$id == club.id!).all() {
+            for event in try await Event.query(on: db).filter(\.$club.$id == club.id!).with(\.$club).all() {
                 await self.events.append(EventDTO(event: event, db: db))
             }
         } catch {}
@@ -23,7 +23,7 @@ struct ClubDTO: Content {
         self.users = []
         do {
             for membership in try await Membership.query(on: db).filter(\.$club.$id == club.id!).all() {
-                self.users.append(UserClubDTO(user: try await User.find(membership.user.id, on: db)!, membership: membership))
+                self.users.append(UserClubDTO(user: try await User.find(membership.$user.id, on: db)!, membership: membership))
             }
         } catch {}
     }

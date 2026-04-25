@@ -79,10 +79,7 @@ struct EventsController: RouteCollection {
         let checkin = try req.content.decode(CheckinReqDTO.self)
         let userId = checkin.userId
         let adminId = checkin.adminId
-
-        let membershiptest = Membership(userId: 1, clubId: 1, admin: true)
-        try await membershiptest.save(on: req.db)
-
+        
         if
         let event = try await Event.find(eventId, on: req.db),
         let membership = try await Membership.query(on: req.db)
@@ -112,12 +109,13 @@ struct EventsController: RouteCollection {
         let event = try await Event.find(eventId, on: req.db),
         let membership = try await Membership.query(on: req.db)
             .filter(\.$user.$id == admin.id!)
-            .filter(\.$club.$id == event.club.id!).first()
+            .filter(\.$club.$id == event.$club.id).first()
         {
             switch state {
                 case "submit", "publish", "complete":
                     if (membership.admin) && (event.status < 5) && (event.status != 1) {
                         event.status += 1
+                        try await event.save(on: req.db)
                         return .ok 
                     } else {
                         throw Abort(.badRequest)
@@ -128,6 +126,7 @@ struct EventsController: RouteCollection {
                         if event.facilities == 1 { event.facilities = 2 }
                         if event.it == 1 { event.it = 2 }
                         if event.finance == 1 { event.finance = 2 }
+                        try await event.save(on: req.db)
                         return .ok
                     } else {
                         throw Abort(.badRequest)
